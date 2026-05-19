@@ -1,0 +1,120 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  --bg: #f5fbff;
+  --panel: rgba(255, 255, 255, 0.84);
+  --ink: #102033;
+  --muted: #597083;
+  --brand: #0ea5a6;
+  --brand-strong: #0f766e;
+  --accent: #f59e0b;
+  --violet: #7c3aed;
+  --rose: #fb7185;
+}
+
+[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #07131b;
+  --panel: rgba(13, 25, 36, 0.88);
+  --ink: #eff8ff;
+  --muted: #a7bfd2;
+  --brand: #2dd4bf;
+  --brand-strong: #5eead4;
+  --accent: #fbbf24;
+  --violet: #a78bfa;
+  --rose: #fb7185;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  overflow-x: hidden;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at top left, rgba(45, 212, 191, 0.2), transparent 32rem),
+    radial-gradient(circle at 85% 20%, rgba(251, 191, 36, 0.18), transparent 24rem),
+    linear-gradient(135deg, var(--bg), #ecfeff 52%, #fff7ed);
+  font-family: Inter, 'Noto Sans Thai', ui-sans-serif, system-ui, sans-serif;
+}
+
+[data-theme='dark'] body {
+  background:
+    radial-gradient(circle at top left, rgba(45, 212, 191, 0.16), transparent 30rem),
+    radial-gradient(circle at 85% 20%, rgba(124, 58, 237, 0.18), transparent 22rem),
+    linear-gradient(135deg, #07131b, #0f172a 52%, #111827);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid rgba(14, 165, 166, 0.5);
+  outline-offset: 3px;
+}
+
+.glass-panel {
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  background: var(--panel);
+  box-shadow: 0 18px 55px rgba(15, 23, 42, 0.12);
+  backdrop-filter: blur(18px);
+}
+
+.game-card {
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  background: rgba(255, 255, 255, 0.78);
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+[data-theme='dark'] .game-card {
+  background: rgba(15, 23, 42, 0.76);
+}
+
+.game-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(14, 165, 166, 0.55);
+  box-shadow: 0 18px 40px rgba(15, 118, 110, 0.16);
+}
+
+.avatar-bob {
+  animation: avatar-bob 3s ease-in-out infinite;
+}
+
+@keyframes avatar-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}

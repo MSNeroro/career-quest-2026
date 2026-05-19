@@ -1,0 +1,15 @@
+dataset_year,metric_key,metric_name,area_type,sex,value,unit
+2026,population_15_plus,ประชากรอายุ 15 ปีขึ้นไป,total,all,59643503.00,คน
+2026,labor_force_total,กำลังแรงงานรวม,total,all,42137049.80,คน
+2026,current_labor_force,กำลังแรงงานปัจจุบัน,total,all,41695695.64,คน
+2026,employed,ผู้มีงานทำ,total,all,41290544.06,คน
+2026,unemployed,ผู้ว่างงาน,total,all,405151.58,คน
+2026,seasonal_labor_force,กำลังแรงงานที่รอฤดูกาล,total,all,441354.16,คน
+2026,outside_labor_force,ผู้อยู่นอกกำลังแรงงาน,total,all,17506453.19,คน
+2026,housework,ทำงานบ้าน,total,all,2947072.61,คน
+2026,studying,เรียนหนังสือ,total,all,4510636.61,คน
+2026,unable_to_work,ยังเด็ก ชรา หรือไม่สามารถทำงานได้,total,all,7267050.00,คน
+2026,employed,ผู้มีงานทำ,in_municipal,male,10520000.00,คน
+2026,employed,ผู้มีงานทำ,in_municipal,female,9820000.00,คน
+2026,employed,ผู้มีงานทำ,outside_municipal,male,11240000.00,คน
+2026,employed,ผู้มีงานทำ,outside_municipal,female,9710000.00,คน
