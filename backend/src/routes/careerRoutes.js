@@ -10,7 +10,7 @@ export const careerRoutes = express.Router();
 careerRoutes.get('/careers', async (_req, res, next) => {
   try {
     if (env.useMemoryStore) {
-      return res.json({ careers: fallbackCareers });
+      return res.json({ careers: memoryStore.listCareers() });
     }
     const careers = await query(
       `SELECT id, career_name_th, career_name_en, category, description,

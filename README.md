@@ -142,7 +142,8 @@ dataset_year,metric_key,metric_name,area_type,sex,value,unit
 
 - frontend build จาก `frontend/`
 - backend API ใช้ Vercel Serverless Function ที่ `/api`
-- ถ้ายังไม่ได้ตั้ง cloud MariaDB ระบบจะใช้ memory demo fallback บน Vercel เพื่อให้เล่น flow ได้
+- Vercel ถูกตั้งเป็น mockup/demo mode ด้วย `USE_MEMORY_STORE=true` จึงยังไม่ต้องต่อ cloud MariaDB
+- demo mode เล่น flow ได้ และ admin demo เพิ่ม/แก้/ปิดใช้งานอาชีพได้แบบไม่ถาวร
 
 สำหรับ production จริง ควรตั้งค่า environment variables ใน Vercel:
 
@@ -156,4 +157,4 @@ SESSION_SECRET=
 FRONTEND_ORIGIN=https://your-domain.vercel.app
 ```
 
-เมื่อมี cloud MariaDB แล้ว backend จะใช้ฐานข้อมูลจริงแทน memory fallback
+เมื่อมี cloud MariaDB แล้วให้ลบ/เปลี่ยน `USE_MEMORY_STORE` และตั้งค่า DB env เหล่านี้ backend จะใช้ฐานข้อมูลจริงแทน memory fallback

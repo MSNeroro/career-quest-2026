@@ -36,6 +36,9 @@ adminRoutes.post('/login', async (req, res, next) => {
 adminRoutes.post('/careers', requireAdmin, requireCsrf, async (req, res, next) => {
   try {
     const input = validate(careerSchema, req.body);
+    if (env.useMemoryStore) {
+      return res.status(201).json(memoryStore.createCareer(input));
+    }
     const result = await query(
       `INSERT INTO careers
        (career_name_th, career_name_en, category, description, required_skills_json,
@@ -55,6 +58,9 @@ adminRoutes.post('/careers', requireAdmin, requireCsrf, async (req, res, next) =
 adminRoutes.put('/careers/:id', requireAdmin, requireCsrf, async (req, res, next) => {
   try {
     const input = validate(careerSchema, req.body);
+    if (env.useMemoryStore) {
+      return res.json(memoryStore.updateCareer(Number(req.params.id), input));
+    }
     await query(
       `UPDATE careers
        SET career_name_th = :career_name_th,
@@ -83,6 +89,9 @@ adminRoutes.put('/careers/:id', requireAdmin, requireCsrf, async (req, res, next
 
 adminRoutes.delete('/careers/:id', requireAdmin, requireCsrf, async (req, res, next) => {
   try {
+    if (env.useMemoryStore) {
+      return res.json(memoryStore.deactivateCareer(Number(req.params.id)));
+    }
     await query(
       `UPDATE careers
        SET active_status = 0, updated_at = NOW()
@@ -101,6 +110,9 @@ adminRoutes.post('/labor/import', requireAdmin, requireCsrf, upload.single('file
     const csv = await fs.readFile(req.file.path, 'utf8');
     const records = parse(csv, { columns: true, skip_empty_lines: true, trim: true });
     await fs.unlink(req.file.path).catch(() => {});
+    if (env.useMemoryStore) {
+      return res.status(201).json({ imported_rows: records.length, demo_mode: true });
+    }
 
     const datasetName = req.body.dataset_name || req.file.originalname;
     const datasetYear = Number(records[0]?.dataset_year || new Date().getFullYear());
@@ -177,6 +189,19 @@ adminRoutes.get('/dashboard', requireAdmin, async (_req, res, next) => {
 
 adminRoutes.get('/export/summary', requireAdmin, async (_req, res, next) => {
   try {
+    if (env.useMemoryStore) {
+      const csv = [
+        'career_name_th,category,recommended_count,avg_score',
+        ...memoryStore.listCareers().map((career) =>
+          [career.career_name_th, career.category, 0, '0.00']
+            .map((value) => `"${String(value).replaceAll('"', '""')}"`)
+            .join(','),
+        ),
+      ].join('\n');
+      res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+      res.setHeader('Content-Disposition', 'attachment; filename="career-quest-summary-demo.csv"');
+      return res.send(`\uFEFF${csv}`);
+    }
     const rows = await query(
       `SELECT c.career_name_th, c.category, COUNT(r.id) AS recommended_count, AVG(r.final_score) AS avg_score
        FROM careers c

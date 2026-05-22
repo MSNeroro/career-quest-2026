@@ -302,6 +302,7 @@ dataset_year,metric_key,metric_name,area_type,sex,value,unit
 ข้อจำกัดสำคัญ:
 
 - Vercel ไม่สามารถต่อ MySQL ในเครื่อง local (`127.0.0.1`) ได้
-- ถ้าไม่มี `DB_HOST` ใน Vercel env ระบบจะเข้า memory demo fallback อัตโนมัติ
+- Vercel mockup ตอนนี้บังคับใช้ memory demo fallback ด้วย `USE_MEMORY_STORE=true`
 - memory fallback ทำให้เล่น flow demo ได้ แต่ข้อมูลไม่ถาวรและไม่ใช่ production database
-- production จริงต้องตั้ง cloud MariaDB แล้วใส่ `DB_HOST`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`, `SESSION_SECRET`
+- admin demo เพิ่ม/แก้/ปิดใช้งานอาชีพ/import/export ได้เพื่อโชว์ mockup แต่จะไม่ persist ถาวร
+- production จริงต้องถอด `USE_MEMORY_STORE=true` แล้วตั้ง cloud MariaDB พร้อม `DB_HOST`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`, `SESSION_SECRET`

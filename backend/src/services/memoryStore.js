@@ -210,6 +210,7 @@ export const fallbackCareers = [
 const state = {
   nextPlayerId: 1,
   nextSessionId: 1,
+  nextCareerId: Math.max(...fallbackCareers.map((career) => career.id)) + 1,
   players: [],
   sessions: [],
   scores: new Map(),
@@ -217,6 +218,31 @@ const state = {
 };
 
 export const memoryStore = {
+  listCareers() {
+    return fallbackCareers.filter((career) => Number(career.active_status) === 1);
+  },
+  createCareer(input) {
+    const career = {
+      id: state.nextCareerId++,
+      ...input,
+      active_status: Number(input.active_status ?? 1),
+      source_name: input.source_name || 'Vercel demo admin',
+      source_url: input.source_url || '',
+    };
+    fallbackCareers.push(career);
+    return { id: career.id };
+  },
+  updateCareer(id, input) {
+    const index = fallbackCareers.findIndex((career) => career.id === id);
+    if (index === -1) return { ok: false };
+    fallbackCareers[index] = { ...fallbackCareers[index], ...input, id };
+    return { ok: true };
+  },
+  deactivateCareer(id) {
+    const career = fallbackCareers.find((item) => item.id === id);
+    if (career) career.active_status = 0;
+    return { ok: true };
+  },
   startPlayer(input) {
     const player_id = state.nextPlayerId++;
     const session_id = state.nextSessionId++;
@@ -249,12 +275,16 @@ export const memoryStore = {
     return state.recommendations.get(sessionId) || [];
   },
   dashboard() {
+    const activeCareers = this.listCareers();
     return {
       total_players: state.players.length,
       players_today: state.players.length,
       completed_sessions: [...state.recommendations.keys()].length,
       top_provinces: [],
-      top_recommended_careers: [],
+      top_recommended_careers: activeCareers.slice(0, 5).map((career) => ({
+        career_name_th: career.career_name_th,
+        value: 0,
+      })),
     };
   },
 };
