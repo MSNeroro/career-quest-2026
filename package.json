@@ -2,6 +2,7 @@
   "name": "career-quest-2026",
   "private": true,
   "version": "0.1.0",
+  "type": "module",
   "description": "Career Quest 2026 MVP: React game frontend with Express and MariaDB API.",
   "scripts": {
     "install:all": "npm.cmd install --prefix frontend && npm.cmd install --prefix backend",
