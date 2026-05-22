@@ -1,5 +1,7 @@
 import express from 'express';
+import { env } from '../config/env.js';
 import { query } from '../db/pool.js';
+import { memoryStore } from '../services/memoryStore.js';
 import { eventSchema, scoreSchema, validate } from '../utils/validators.js';
 
 export const gameRoutes = express.Router();
@@ -7,6 +9,9 @@ export const gameRoutes = express.Router();
 gameRoutes.post('/event', async (req, res, next) => {
   try {
     const input = validate(eventSchema, req.body);
+    if (env.useMemoryStore) {
+      return res.status(201).json(memoryStore.saveEvent(input));
+    }
     await query(
       `INSERT INTO game_events
        (session_id, event_type, event_key, event_value, score_key, score_value)
@@ -22,6 +27,9 @@ gameRoutes.post('/event', async (req, res, next) => {
 gameRoutes.post('/score', async (req, res, next) => {
   try {
     const input = validate(scoreSchema, req.body);
+    if (env.useMemoryStore) {
+      return res.json(memoryStore.saveScore(input));
+    }
     const scores = input.scores;
     await query(
       `INSERT INTO skill_scores

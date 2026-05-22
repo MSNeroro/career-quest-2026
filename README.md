@@ -25,7 +25,7 @@ database/   schema, seed careers, sample labor CSV
 
 ```bash
 mysql -u root -p < database/schema.sql
-mysql -u root -p career_quest_2026 < database/seed_careers.sql
+mysql --default-character-set=utf8mb4 -u root -p career_quest_2026 < database/seed_careers.sql
 ```
 
 2. ตั้งค่า backend
@@ -57,6 +57,8 @@ npm.cmd run dev --prefix frontend
 บัญชี admin seed: `admin` / `password`
 
 ควรเปลี่ยนรหัสผ่านและ `SESSION_SECRET` ก่อนใช้งานจริง
+
+> ถ้า import ผ่าน Windows PowerShell หรือ MySQL client ที่ไม่ได้บังคับ UTF-8 ให้ใช้ `--default-character-set=utf8mb4` เสมอ ไม่เช่นนั้นภาษาไทยในตาราง `careers` อาจกลายเป็นตัวอักษรเพี้ยน
 
 ## Flow การเล่น
 
@@ -133,3 +135,25 @@ dataset_year,metric_key,metric_name,area_type,sex,value,unit
 - เพิ่ม rate limit ครอบคลุม API สำคัญและ audit log สำหรับ admin
 - ปรับ careers source ให้ผูกกับแหล่งข้อมูลจริงพร้อมปีข้อมูล
 - เพิ่ม automated tests สำหรับ matching engine และ API validation
+
+## Deploy บน Vercel
+
+โปรเจกต์มี `vercel.json` และ `api/index.js` สำหรับ deploy แบบ monorepo:
+
+- frontend build จาก `frontend/`
+- backend API ใช้ Vercel Serverless Function ที่ `/api`
+- ถ้ายังไม่ได้ตั้ง cloud MariaDB ระบบจะใช้ memory demo fallback บน Vercel เพื่อให้เล่น flow ได้
+
+สำหรับ production จริง ควรตั้งค่า environment variables ใน Vercel:
+
+```text
+DB_HOST=
+DB_PORT=3306
+DB_USER=
+DB_PASSWORD=
+DB_NAME=career_quest_2026
+SESSION_SECRET=
+FRONTEND_ORIGIN=https://your-domain.vercel.app
+```
+
+เมื่อมี cloud MariaDB แล้ว backend จะใช้ฐานข้อมูลจริงแทน memory fallback

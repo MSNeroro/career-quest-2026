@@ -4,7 +4,9 @@ import multer from 'multer';
 import { parse } from 'csv-parse/sync';
 import fs from 'node:fs/promises';
 import { query, transaction } from '../db/pool.js';
+import { env } from '../config/env.js';
 import { createCsrfToken, requireAdmin, requireCsrf } from '../middleware/security.js';
+import { memoryStore } from '../services/memoryStore.js';
 import { adminLoginSchema, careerSchema, validate } from '../utils/validators.js';
 
 const upload = multer({ dest: 'uploads/', limits: { fileSize: 2 * 1024 * 1024 } });
@@ -13,6 +15,10 @@ export const adminRoutes = express.Router();
 adminRoutes.post('/login', async (req, res, next) => {
   try {
     const input = validate(adminLoginSchema, req.body);
+    if (env.useMemoryStore && input.username === 'admin' && input.password === 'password') {
+      req.session.adminUser = { id: 1, username: 'admin', role: 'admin' };
+      return res.json({ ok: true, csrfToken: createCsrfToken(req), admin: req.session.adminUser });
+    }
     const rows = await query('SELECT * FROM admin_users WHERE username = :username LIMIT 1', {
       username: input.username,
     });
@@ -140,6 +146,9 @@ adminRoutes.post('/labor/import', requireAdmin, requireCsrf, upload.single('file
 
 adminRoutes.get('/dashboard', requireAdmin, async (_req, res, next) => {
   try {
+    if (env.useMemoryStore) {
+      return res.json(memoryStore.dashboard());
+    }
     const [totalPlayers, playersToday, completedSessions, topProvince, topCareer] = await Promise.all([
       query('SELECT COUNT(*) AS value FROM players'),
       query('SELECT COUNT(*) AS value FROM players WHERE DATE(created_at) = CURRENT_DATE'),

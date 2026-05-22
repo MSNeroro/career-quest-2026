@@ -1,6 +1,8 @@
 import express from 'express';
 import crypto from 'node:crypto';
+import { env } from '../config/env.js';
 import { transaction } from '../db/pool.js';
+import { memoryStore } from '../services/memoryStore.js';
 import { profileSchema, startPlayerSchema, validate } from '../utils/validators.js';
 
 export const playerRoutes = express.Router();
@@ -8,6 +10,9 @@ export const playerRoutes = express.Router();
 playerRoutes.post('/start', async (req, res, next) => {
   try {
     const input = validate(startPlayerSchema, req.body);
+    if (env.useMemoryStore) {
+      return res.status(201).json(memoryStore.startPlayer(input));
+    }
     const result = await transaction(async (connection) => {
       const [playerResult] = await connection.execute(
         `INSERT INTO players (uuid, consent_status, gender)
@@ -40,6 +45,9 @@ playerRoutes.post('/start', async (req, res, next) => {
 playerRoutes.post('/profile', async (req, res, next) => {
   try {
     const input = validate(profileSchema, req.body);
+    if (env.useMemoryStore) {
+      return res.json(memoryStore.saveProfile(input));
+    }
     await transaction(async (connection) => {
       await connection.execute(
         `UPDATE players

@@ -66,7 +66,7 @@ database/
 
 ```bash
 mysql -u root -p < database/schema.sql
-mysql -u root -p career_quest_2026 < database/seed_careers.sql
+mysql --default-character-set=utf8mb4 -u root -p career_quest_2026 < database/seed_careers.sql
 ```
 
 2. ตั้งค่า backend
@@ -99,6 +99,12 @@ URL:
 - password: `password`
 
 ควรเปลี่ยนรหัสผ่านก่อนใช้งานจริง
+
+หมายเหตุ encoding:
+
+- เวลา seed ข้อมูลภาษาไทยให้ใช้ `--default-character-set=utf8mb4`
+- ถ้าไม่บังคับ charset อาจเกิดข้อความเพี้ยนแบบ `เธเธฑ...` ใน MySQL
+- ถ้าเกิดแล้ว ให้ truncate `careers` และ import seed ใหม่ด้วย charset ข้างต้น
 
 ## สิ่งที่ตรวจแล้ว
 
@@ -282,3 +288,20 @@ dataset_year,metric_key,metric_name,area_type,sex,value,unit
 - HTTPS
 - backup/restore plan
 - logging และ monitoring ขั้นพื้นฐาน
+
+## Vercel Notes
+
+มี config สำหรับ Vercel แล้ว:
+
+- `vercel.json`
+- `api/index.js`
+- `backend/src/app.js`
+
+บน Vercel frontend จะเรียก API แบบ same-origin ที่ `/api` แทน localhost
+
+ข้อจำกัดสำคัญ:
+
+- Vercel ไม่สามารถต่อ MySQL ในเครื่อง local (`127.0.0.1`) ได้
+- ถ้าไม่มี `DB_HOST` ใน Vercel env ระบบจะเข้า memory demo fallback อัตโนมัติ
+- memory fallback ทำให้เล่น flow demo ได้ แต่ข้อมูลไม่ถาวรและไม่ใช่ production database
+- production จริงต้องตั้ง cloud MariaDB แล้วใส่ `DB_HOST`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`, `SESSION_SECRET`

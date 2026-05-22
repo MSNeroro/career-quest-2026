@@ -1,12 +1,17 @@
 import express from 'express';
+import { env } from '../config/env.js';
 import { query, transaction } from '../db/pool.js';
 import { calculateMatches } from '../services/matchingEngine.js';
+import { fallbackCareers, memoryStore } from '../services/memoryStore.js';
 import { recommendationSchema, validate } from '../utils/validators.js';
 
 export const careerRoutes = express.Router();
 
 careerRoutes.get('/careers', async (_req, res, next) => {
   try {
+    if (env.useMemoryStore) {
+      return res.json({ careers: fallbackCareers });
+    }
     const careers = await query(
       `SELECT id, career_name_th, career_name_en, category, description,
               required_skills_json, interest_tags_json, personality_tags_json,
@@ -25,6 +30,16 @@ careerRoutes.get('/careers', async (_req, res, next) => {
 careerRoutes.post('/recommendation/calculate', async (req, res, next) => {
   try {
     const input = validate(recommendationSchema, req.body);
+    if (env.useMemoryStore) {
+      const recommendations = calculateMatches({
+        careers: fallbackCareers,
+        profile: input.player_profile,
+        skillScores: input.skill_scores,
+        selectedCareerIds: input.selected_career_ids,
+      }).map((item) => ({ ...item, career_id: item.id }));
+      memoryStore.saveRecommendations(input.session_id, recommendations);
+      return res.json({ recommendations });
+    }
     const careers = await query(
       `SELECT *
        FROM careers
@@ -74,6 +89,9 @@ careerRoutes.post('/recommendation/calculate', async (req, res, next) => {
 
 careerRoutes.get('/recommendation/:session_id', async (req, res, next) => {
   try {
+    if (env.useMemoryStore) {
+      return res.json({ recommendations: memoryStore.getRecommendations(Number(req.params.session_id)) });
+    }
     const rows = await query(
       `SELECT r.*, c.career_name_th, c.career_name_en, c.category, c.roadmap
        FROM recommendations r
